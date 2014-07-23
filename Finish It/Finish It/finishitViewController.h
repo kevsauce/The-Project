@@ -10,15 +10,12 @@
 
 @interface finishitViewController : UIViewController{
     
+    UIImageView *drawImage;
+    NSDate * lastClick;
     CGPoint lastPoint;
-    CGFloat red;
-    CGFloat green;
-    CGFloat blue;
-    CGFloat brush;
-    CGFloat opacity;
+    CGPoint currentPoint;
+    CGPoint location;
     BOOL mouseSwiped;
 }
 
-@property(strong,nonatomic)IBOutlet UIImageView *tempDrawImage;
-@property(strong,nonatomic)IBOutlet UIImageView *mainImage;
 @end

@@ -15,13 +15,14 @@
 
 - (void)viewDidLoad
 {
-    red = 0.0/255.0;
-    green = 0.0/255.0;
-    blue = 0.0/255.0;
-    brush = 4.0;
-    opacity = 1.0;
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	drawImage.image = [defaults objectForKey:@"drawImageKey"];
+	drawImage = [[UIImageView alloc] initWithImage:nil];
+	drawImage.frame = self.view.frame;
+	[self.view addSubview:drawImage];
     
     [super viewDidLoad];
+	// Do any additional setup after loading the view, typically from a nib.
 }
 
 - (void)didReceiveMemoryWarning
@@ -31,55 +32,48 @@
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	UITouch *touch = [[event allTouches] anyObject];
+	
+	if ([touch tapCount] == 2) {
+        drawImage.image = nil;
+	}
+	
     
-    mouseSwiped = NO;
-    UITouch *touch = [touches anyObject];
+	location = [touch locationInView:touch.view];
+	lastClick = [NSDate date];
+	
     lastPoint = [touch locationInView:self.view];
+    lastPoint.y -= 0;
+	
+    
+	[super touchesBegan: touches withEvent: event];
+	
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    
-    mouseSwiped = YES;
-    UITouch *touch = [touches anyObject];
-    CGPoint currentPoint = [touch locationInView:self.view];
-    
-    UIGraphicsBeginImageContext(self.view.frame.size);
-    [self.mainImage.image drawInRect:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+	mouseSwiped = YES;
+	
+	UITouch *touch = [touches anyObject];
+	currentPoint = [touch locationInView:self.view];
+	
+    UIGraphicsBeginImageContext(CGSizeMake(320, 568));
+    [drawImage.image drawInRect:CGRectMake(0, 0, 320, 568)];
+    CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
+    CGContextSetLineWidth(UIGraphicsGetCurrentContext(), 1.0);
+    CGContextSetRGBStrokeColor(UIGraphicsGetCurrentContext(), 22.0/255.0, 77.0/255.0, 0, 1);
+    CGContextBeginPath(UIGraphicsGetCurrentContext());
     CGContextMoveToPoint(UIGraphicsGetCurrentContext(), lastPoint.x, lastPoint.y);
     CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), currentPoint.x, currentPoint.y);
-    CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
-    CGContextSetLineWidth(UIGraphicsGetCurrentContext(), brush );
-    CGContextSetRGBStrokeColor(UIGraphicsGetCurrentContext(), red, green, blue, 1.0);
-    CGContextSetBlendMode(UIGraphicsGetCurrentContext(),kCGBlendModeNormal);
-    
     CGContextStrokePath(UIGraphicsGetCurrentContext());
-    self.mainImage.image = UIGraphicsGetImageFromCurrentImageContext();
-    [self.mainImage setAlpha:opacity];
-    UIGraphicsEndImageContext();
     
+    
+    [drawImage setFrame:CGRectMake(0, 0, 320, 568)];
+    drawImage.image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
     lastPoint = currentPoint;
+	
+	[self.view addSubview:drawImage];
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    
-    if(!mouseSwiped) {
-        UIGraphicsBeginImageContext(self.view.frame.size);
-        [self.mainImage.image drawInRect:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-        CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
-        CGContextSetLineWidth(UIGraphicsGetCurrentContext(), brush);
-        CGContextSetRGBStrokeColor(UIGraphicsGetCurrentContext(), red, green, blue, opacity);
-        CGContextMoveToPoint(UIGraphicsGetCurrentContext(), lastPoint.x, lastPoint.y);
-        CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), lastPoint.x, lastPoint.y);
-        CGContextStrokePath(UIGraphicsGetCurrentContext());
-        CGContextFlush(UIGraphicsGetCurrentContext());
-        self.mainImage.image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-    }
-    
-    UIGraphicsBeginImageContext(self.mainImage.frame.size);
-    [self.mainImage.image drawInRect:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) blendMode:kCGBlendModeNormal alpha:1.0];
-    self.mainImage.image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-}
 
 @end
