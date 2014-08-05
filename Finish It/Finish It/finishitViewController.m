@@ -34,9 +34,7 @@
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [[event allTouches] anyObject];
 	
-	if ([touch tapCount] == 2) {
-        drawImage.image = nil;
-	}
+	
 	
     
 	location = [touch locationInView:touch.view];
